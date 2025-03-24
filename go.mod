@@ -1,3 +1,3 @@
 module github.com/trancedj20240410/Go-argo
 
-go 1.19
+go 1.20
