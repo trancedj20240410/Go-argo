@@ -1,34 +1,44 @@
-name: Go Build and Release
+name: Go Build
 
 on:
   push:
-    tags:
-      - 'v*'  # 监听版本标签，例如 v1.0.0
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64, arm64]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'  # 使用你需要的 Go 版本
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
 
-      - name: Install dependencies
-        run: go mod tidy
+    - name: Build
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        # 创建输出目录
+        mkdir -p build
+        
+        # 设置输出文件名
+        OUTPUT_FILE="build/argo-${{ matrix.goos }}-${{ matrix.goarch }}"
+        
+        # 编译
+        go build -v -o $OUTPUT_FILE .
 
-      - name: Build
-        run: go build -o glitch ./...  # 替换为你的二进制文件名
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag: ${{ github.ref }}
-          files: glitch  # 指定要上传的文件
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: argo-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: build/argo-${{ matrix.goos }}-${{ matrix.goarch }}
