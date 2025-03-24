@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,40 +16,24 @@ jobs:
         goarch: [amd64, arm64]
 
     steps:
-    - name: Checkout code
+    - name: 检出代码
       uses: actions/checkout@v2
 
-    - name: Set up Go
+    - name: 设置 Go 环境
       uses: actions/setup-go@v2
       with:
-        go-version: '1.19'
+        go-version: '1.18'
 
-    - name: Build
+    - name: 编译
       env:
         GOOS: ${{ matrix.goos }}
         GOARCH: ${{ matrix.goarch }}
       run: |
-        # Create output directory
-        mkdir -p build
-        
-        # Set output filename
-        OUTPUT_FILE="build/argo-${{ matrix.goos }}-${{ matrix.goarch }}"
-        
-        # Build
-        go build -v -o $OUTPUT_FILE .
-        
-        # Verify build succeeded
-        if [ ! -f "$OUTPUT_FILE" ]; then
-          echo "Build failed: Output file not found"
-          exit 1
-        fi
-        
-        # Make executable
-        chmod +x $OUTPUT_FILE
+        mkdir -p dist
+        go build -v -o dist/argo-${{ matrix.goos }}-${{ matrix.goarch }} .
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v2  # Using v2 instead of v3 for better stability
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v1
       with:
         name: argo-${{ matrix.goos }}-${{ matrix.goarch }}
-        path: build/argo-${{ matrix.goos }}-${{ matrix.goarch }}
-        if-no-files-found: error  # Fail if no files are found
+        path: dist/argo-${{ matrix.goos }}-${{ matrix.goarch }}
