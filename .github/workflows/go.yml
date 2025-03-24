@@ -1,15 +1,9 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go Build and Test
+name: Go Build and Release
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - 'v*'  # 监听版本标签，例如 v1.0.0
 
 jobs:
   build:
@@ -28,7 +22,13 @@ jobs:
         run: go mod tidy
 
       - name: Build
-        run: go build ./...
+        run: go build -o glitch ./...  # 替换为你的二进制文件名
 
-      - name: Run tests
-        run: go test ./...
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag: ${{ github.ref }}
+          files: glitch  # 指定要上传的文件
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
