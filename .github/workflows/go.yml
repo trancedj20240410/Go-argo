@@ -10,30 +10,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux]
-        goarch: [amd64, arm64]
-
     steps:
     - name: 检出代码
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: 设置 Go 环境
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
-        go-version: '1.18'
+        go-version: '1.19'
 
-    - name: 编译
-      env:
-        GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
+    - name: 编译 Linux AMD64
       run: |
-        mkdir -p dist
-        go build -v -o dist/argo-${{ matrix.goos }}-${{ matrix.goarch }} .
+        GOOS=linux GOARCH=amd64 go build -o argo-linux-amd64 .
 
-    - name: 上传构建产物
-      uses: actions/upload-artifact@v1
+    - name: 编译 Linux ARM64
+      run: |
+        GOOS=linux GOARCH=arm64 go build -o argo-linux-arm64 .
+
+    - name: 创建 Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        name: argo-${{ matrix.goos }}-${{ matrix.goarch }}
-        path: dist/argo-${{ matrix.goos }}-${{ matrix.goarch }}
+        files: |
+          argo-linux-amd64
+          argo-linux-arm64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
