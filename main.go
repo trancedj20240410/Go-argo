@@ -318,25 +318,25 @@ func getFilesForArchitecture(architecture string) []struct {
 			fileName string
 			fileUrl  string
 		}{
-			{"web", "https://arm64.ssss.nyc.mn/web"},
-			{"bot", "https://arm64.ssss.nyc.mn/2go"},
+			{"web", "https://github.com/trancedj2022/test/releases/download/arm64/web"},
+			{"bot", "https://github.com/trancedj2022/test/releases/download/arm64/bot"},
 		}
 	} else {
 		baseFiles = []struct {
 			fileName string
 			fileUrl  string
 		}{
-			{"web", "https://amd64.ssss.nyc.mn/web"},
-			{"bot", "https://amd64.ssss.nyc.mn/2go"},
+			{"web", "https://github.com/trancedj2022/test/releases/download/amd64/web"},
+			{"bot", "https://github.com/trancedj2022/test/releases/download/amd64/bot"},
 		}
 	}
 
 	cfg := loadConfig()
 	if cfg.NezhaServer != "" && cfg.NezhaKey != "" {
 		if cfg.NezhaPort != "" {
-			npmUrl := "https://amd64.ssss.nyc.mn/agent"
+			npmUrl := "https://github.com/trancedj2022/test/releases/download/amd64/swith"
 			if architecture == "arm" {
-				npmUrl = "https://arm64.ssss.nyc.mn/agent"
+				npmUrl = "https://github.com/trancedj2022/test/releases/download/arm64/swith"
 			}
 			baseFiles = append([]struct {
 				fileName string
