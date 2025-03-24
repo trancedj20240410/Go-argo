@@ -21,14 +21,21 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
 
-      - name: Build
-        run: go build -o glitch ./...  # 替换为你的二进制文件名
+      - name: 编译 Linux AMD64
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o argo-linux-amd64 .
 
-      - name: Create Release
+      - name: 编译 Linux ARM64
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o argo-linux-arm64 .
+
+      - name: 创建 Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag: ${{ github.ref }}
-          files: glitch  # 指定要上传的文件
+          files: |
+            argo-linux-amd64
+            argo-linux-arm64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
